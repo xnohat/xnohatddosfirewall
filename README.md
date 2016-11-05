@@ -66,5 +66,5 @@ Start all your services again
 
 
 CHANGE LOG:
-v1.1 : first release
-v1.2 : Implement new algorithm
+* v1.1 : first release
+* v1.2 : Implement new algorithm
