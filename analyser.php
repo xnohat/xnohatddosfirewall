@@ -1,8 +1,8 @@
 <?php
 
-register_shutdown_function( "fatal_handler" );
-
 main();
+
+register_shutdown_function( "fatal_handler" );
 
 function main(){
 
