@@ -2,7 +2,7 @@
 
 	XNOHAT DDoS FIREWALL
 
-	Version: 1.1
+	Version: 1.2
 
 	xnohat@gmail.com
 
@@ -62,3 +62,9 @@ Press "Ctrl-b d" : to detach tmux
 Re-attach tmux by command $ tmux attach -t 0
 
 Start all your services again
+
+
+
+CHANGE LOG:
+v1.1 : first release
+v1.2 : Implement new algorithm
