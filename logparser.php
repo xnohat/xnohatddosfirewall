@@ -5,7 +5,8 @@ main();
 register_shutdown_function( "fatal_handler" );
 
 function main(){
-    $logfile = '/var/log/nginx/access.log';
+    
+    include('config.php');
 
     unlink('access_log.db');
 
