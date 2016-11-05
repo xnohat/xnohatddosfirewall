@@ -1,62 +1,116 @@
 <?php
 
-echo "\n\t---------------------------------\n
-	\tXNOHAT DDoS FIREWALL\n
-	\tVersion: 1.1\n
-	\txnohat@gmail.com\n
-	-----------------------------------\n
-	";
+register_shutdown_function( "fatal_handler" );
 
-$serverip = '125.212.250.72';
-$yourip = '1.53.194.96';
-$exclude_ips = array($serverip,
-					$yourip,
+main();
 
-					'1.53.194.96',
+function main(){
 
-				);
+	echo "\n\t---------------------------------\n
+		\tXNOHAT DDoS FIREWALL\n
+		\tVersion: 1.1\n
+		\txnohat@gmail.com\n
+		-----------------------------------\n
+		";
 
-$timewindow = 60; //unit: second - a splited interval time that requests are grouped in. For example one minute have 5000 requests
-$threshold = 5000; //threshold requests number per $timewindow
-$ipblocklist = array();
+	$serverip = '125.212.250.72';
+	$yourip = '1.53.194.96';
+	$exclude_ips = array($serverip,
+						$yourip,
 
-while(true){
+						'1.53.194.96',
 
-	exec('iptables -F BLOCKEDIP'); //flush chain rules
-	exec("iptables-save | grep -v -- '-j BLOCKEDIP' | iptables-restore"); // delete all rules related to chain
-	exec('iptables -X BLOCKEDIP'); //delete chain
+					);
+
+	$timewindow = 60; //unit: second - a splited interval time that requests are grouped in. For example one minute have 5000 requests
+	$threshold = 100; //threshold requests number per $timewindow
+
+	$sleeptime = 10; //unit: second - sleep between log check
+
+	$ipblocklist = array();
+
+	//exec('iptables -F BLOCKEDIP'); //flush chain rules
+	//exec("iptables-save | grep -v -- '-j BLOCKEDIP' | iptables-restore"); // delete all rules related to chain
+	//exec('iptables -X BLOCKEDIP'); //delete chain
 	exec('iptables -N BLOCKEDIP'); //create chain
 	exec("iptables -A BLOCKEDIP -j LOG --log-level 4 --log-prefix 'blockedip'"); //LOG any packets go to this BLOCKEDIP chain
 	exec('iptables -A BLOCKEDIP -j DROP'); //DROP any packets go to this BLOCKEDIP chain
 
-	//copy('access_log.db','access_log_for_analysis.db');
+	while(true){
 
-	$db = new SQLite3('access_log.db');
-	//$db = new SQLite3(':memory:');
-	$db->query("PRAGMA synchronous = OFF");
-	$db->query("PRAGMA journal_mode = MEMORY");
-	$db->query("PRAGMA busy_timeout = 300000");
+		try{
 
-	//$res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog GROUP BY remote_ip ORDER BY request_num DESC'); //load all request in database is VERY SLOW
-	$res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog WHERE request_time BETWEEN "'.@date("Y-m-d H:i:s", time()-$timewindow).'" AND "'.@date("Y-m-d H:i:s", time()).'" GROUP BY remote_ip ORDER BY request_num DESC');
-	while ($row = $res_count_request->fetchArray()) {
-	    //print_r($row);
-	    if($row['request_num'] >= $threshold AND !in_array($row['remote_ip'],$exclude_ips)){
-	    	
-	    	exec('iptables -A INPUT -s '.$row['remote_ip'].' -j BLOCKEDIP');
+		//copy('access_log.db','access_log_for_analysis.db');
 
-	    	echo 'BLOCKED IP: '.$row['remote_ip'].' (REQ_NUM: '.$row['request_num'].")\n";
-	    	file_put_contents('blockedip.log',$row['remote_ip'].'-'.$row['request_num']."\n",FILE_APPEND);
-	    	
-	    	$ipblocklist[] = $row['remote_ip'];
-	    }
+		$db = new SQLite3('access_log.db');
+		//$db = new SQLite3(':memory:');
+		$db->query("PRAGMA synchronous = OFF");
+		$db->query("PRAGMA journal_mode = MEMORY");
+		$db->query("PRAGMA busy_timeout = 300000");
+
+		//$res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog GROUP BY remote_ip ORDER BY request_num DESC'); //load all request in database is VERY SLOW
+		$res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog WHERE request_time BETWEEN "'.@date("Y-m-d H:i:s", time()-$timewindow).'" AND "'.@date("Y-m-d H:i:s", time()).'" GROUP BY remote_ip ORDER BY request_num DESC');
+		while ($row = $res_count_request->fetchArray()) {
+		    //print_r($row);
+		    if($row['request_num'] >= $threshold AND !in_array($row['remote_ip'],$exclude_ips)){
+		    	
+		    	exec('iptables -A INPUT -s '.$row['remote_ip'].' -j BLOCKEDIP');
+
+		    	echo 'BLOCKED IP: '.$row['remote_ip'].' (REQ_NUM: '.$row['request_num'].")\n";
+		    	file_put_contents('blockedip.log',$row['remote_ip'].'-'.$row['request_num']."\n",FILE_APPEND);
+		    	file_put_contents('manualblockip.sh','iptables -A INPUT -s '.$row['remote_ip'].' -j BLOCKEDIP'."\n",FILE_APPEND);
+		    	
+		    	$ipblocklist[] = $row['remote_ip'];
+		    }
+		}
+
+		removeDuplicateIptablesRules();
+
+		$db->close();
+
+		echo "SLEEP IN $sleeptime seconds\n";
+		sleep($sleeptime);
+
+		} catch(Exception $error) {
+			//do nothing
+		}
+
 	}
 
-	$db->close();
+}
 
-	echo "SLEEP IN $timewindow seconds\n";
-	sleep($timewindow);
+function removeDuplicateIptablesRules(){
+	exec('iptables-save',$arr_iptables_save_output);
+	foreach($arr_iptables_save_output as $k=>$v) {
+		if( ($kt=array_search($v,$arr_iptables_save_output)) !== FALSE AND $k!=$kt AND strstr($v,'-A') !== FALSE ){ 
+		 	unset($arr_iptables_save_output[$kt]);
+		}
+	}
 
+	$removed_duplicate_iptables_rules = implode("\n", $arr_iptables_save_output);
+	file_put_contents('removed_duplicate_iptables_rules.txt', $removed_duplicate_iptables_rules);
+	exec('iptables -F'); // Clear all rules
+	exec('iptables-restore < removed_duplicate_iptables_rules.txt');
+	echo "Removed Duplicate Rules from IPTables\n";
+}
+
+//function for fatal error case
+function fatal_handler() {
+  $errfile = "unknown file";
+  $errstr  = "shutdown";
+  $errno   = E_CORE_ERROR;
+  $errline = 0;
+
+  $error = error_get_last();
+
+  if( $error !== NULL) {
+    $errno   = $error["type"];
+    $errfile = $error["file"];
+    $errline = $error["line"];
+    $errstr  = $error["message"];
+
+    main();
+  }
 }
 
 ?>
