@@ -2,9 +2,9 @@
 
 main();
 
-register_shutdown_function( "fatal_handler" );
-
 function main(){
+
+register_shutdown_function( "fatal_handler" );
 
 	echo "\n\t---------------------------------\n
 		\tXNOHAT DDoS FIREWALL\n
@@ -44,7 +44,7 @@ function main(){
 		    	
 		    	exec('iptables -A INPUT -s '.$row['remote_ip'].' -j BLOCKEDIP');
 
-		    	echo 'BLOCKED IP: '.$row['remote_ip'].' (REQ_NUM: '.$row['request_num'].")\n";
+		    	echo 'BLOCKED IP: '.$row['remote_ip'].' (REQ_NUM: '.$row['request_num']."/".$timewindow." seconds)\n";
 		    	file_put_contents('blockedip.log',$row['remote_ip'].'-'.$row['request_num']."\n",FILE_APPEND);
 		    	file_put_contents('manualblockip.sh','iptables -A INPUT -s '.$row['remote_ip'].' -j BLOCKEDIP'."\n",FILE_APPEND);
 		    	
