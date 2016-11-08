@@ -3,6 +3,7 @@ defined('BASEPATH') OR exit('Access denied.');
 
 /* EDIT HERE */
 define('LOG_FILE', '/var/log/nginx/access.log');
+define('DB_FILE', BASEPATH . 'access_log.db');
 
 define('SERVER_IP', '125.212.250.72');
 define('YOUR_IP', '1.53.194.96');

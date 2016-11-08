@@ -8,9 +8,9 @@ register_shutdown_function("fatal_handler");
 
 function main() {
   
-  unlink('access_log.db');
+  unlink(DB_FILE);
   
-  $db = new SQLite3('access_log.db');
+  $db = new SQLite3(DB_FILE);
   //$db = new SQLite3(':memory:');
   $db->query("PRAGMA synchronous = OFF");
   $db->query("PRAGMA journal_mode = MEMORY");

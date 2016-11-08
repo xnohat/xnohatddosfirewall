@@ -28,9 +28,9 @@ function main() {
     
     try {
       
-      //copy('access_log.db','access_log_for_analysis.db');
+      //copy(DB_FILE,'access_log_for_analysis.db');
       
-      $db = new SQLite3('access_log.db');
+      $db = new SQLite3(DB_FILE);
       //$db = new SQLite3(':memory:');
       $db->query("PRAGMA synchronous = OFF");
       $db->query("PRAGMA journal_mode = MEMORY");
