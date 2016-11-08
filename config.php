@@ -1,18 +1,21 @@
 <?php
 defined('BASEPATH') OR exit('Access denied.');
 
-$logfile = '/var/log/nginx/access.log';
+/* EDIT HERE */
+define('LOG_FILE', '/var/log/nginx/access.log');
 
-$serverip    = '125.212.250.72';
-$yourip      = '1.53.194.96';
+define('SERVER_IP', '125.212.250.72');
+define('YOUR_IP', '1.53.194.96');
+
+define('TIME_WINDOW', 60); // unit: second - a splited interval time that requests are grouped in. For example one minute have 5000 requests
+define('THRESHOLD', 1000); // threshold requests number per $timewindow
+define('SLEEP_TIME', 10); // unit: second - sleep between log check
+
 $exclude_ips = array(
-  $serverip,
-  $yourip,
-  '1.53.194.96'
+  SERVER_IP,
+  YOUR_IP,
+  
+  // Add more here...
 );
-
-$timewindow = 60; //unit: second - a splited interval time that requests are grouped in. For example one minute have 5000 requests
-$threshold  = 1000; //threshold requests number per $timewindow
-$sleeptime = 10; //unit: second - sleep between log check
 
 ?>

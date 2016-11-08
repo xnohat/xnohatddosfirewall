@@ -37,14 +37,14 @@ function main() {
       $db->query("PRAGMA busy_timeout = 300000");
       
       //$res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog GROUP BY remote_ip ORDER BY request_num DESC'); //load all request in database is VERY SLOW
-      $res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog WHERE request_time BETWEEN "' . @date("Y-m-d H:i:s", time() - $timewindow) . '" AND "' . @date("Y-m-d H:i:s", time()) . '" GROUP BY remote_ip ORDER BY request_num DESC');
+      $res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog WHERE request_time BETWEEN "' . @date("Y-m-d H:i:s", time() - TIME_WINDOW) . '" AND "' . @date("Y-m-d H:i:s", time()) . '" GROUP BY remote_ip ORDER BY request_num DESC');
       while ($row = $res_count_request->fetchArray()) {
         //print_r($row);
-        if ($row['request_num'] >= $threshold AND !in_array($row['remote_ip'], $exclude_ips)) {
+        if ($row['request_num'] >= THRESHOLD AND !in_array($row['remote_ip'], $exclude_ips)) {
           
           exec('iptables -A INPUT -s ' . $row['remote_ip'] . ' -j BLOCKEDIP');
           
-          echo 'BLOCKED IP: ' . $row['remote_ip'] . ' (REQ_NUM: ' . $row['request_num'] . "/" . $timewindow . " seconds)\n";
+          echo 'BLOCKED IP: ' . $row['remote_ip'] . ' (REQ_NUM: ' . $row['request_num'] . "/" . TIME_WINDOW . " seconds)\n";
           file_put_contents('blockedip.log', $row['remote_ip'] . '-' . $row['request_num'] . "\n", FILE_APPEND);
           file_put_contents('manualblockip.sh', 'iptables -A INPUT -s ' . $row['remote_ip'] . ' -j BLOCKEDIP' . "\n", FILE_APPEND);
           
@@ -56,8 +56,8 @@ function main() {
       
       $db->close();
       
-      echo "SLEEP IN $sleeptime seconds\n";
-      sleep($sleeptime);
+      echo 'SLEEP IN ' . SLEEP_TIME . "seconds\n";
+      sleep(SLEEP_TIME);
       
     }
     catch (Exception $error) {

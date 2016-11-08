@@ -27,18 +27,18 @@ function main() {
   }
   
   //Follow Log
-  $size = filesize($logfile); //set to current file size to move disk read cursor to end of file
+  $size = filesize(LOG_FILE); //set to current file size to move disk read cursor to end of file
   
   while (true) {
     
     clearstatcache();
-    $currentSize = filesize($logfile);
+    $currentSize = filesize(LOG_FILE);
     if ($size == $currentSize) {
       usleep(100);
       continue;
     }
     
-    $fh = fopen($logfile, "r");
+    $fh = fopen(LOG_FILE, "r");
     fseek($fh, $size);
     
     while ($line = fgets($fh)) {
@@ -70,6 +70,7 @@ function main() {
   
   $db->close();
 }
+
 //function for fatal error case
 function fatal_handler() {
   $errfile = "unknown file";
