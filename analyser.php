@@ -71,7 +71,7 @@ function main() {
 function removeDuplicateIptablesRules() {
   exec('iptables-save', $arr_iptables_save_output);
   foreach ($arr_iptables_save_output as $k => $v) {
-    if (($kt = array_search($v, $arr_iptables_save_output)) !== FALSE AND $k != $kt AND strstr($v, '-A') !== FALSE) {
+    if (($kt = array_search($v, $arr_iptables_save_output)) !== FALSE AND $k != $kt AND strpos($v, '-A') !== FALSE) {
       unset($arr_iptables_save_output[$kt]);
     }
   }
