@@ -4,7 +4,7 @@ require_once BASEPATH . 'config.php';
 
 main();
 
-register_shutdown_function("fatal_handler");
+register_shutdown_function('fatal_handler');
 
 function main() {
   
@@ -12,9 +12,9 @@ function main() {
   
   $db = new SQLite3(DB_FILE);
   //$db = new SQLite3(':memory:');
-  $db->query("PRAGMA synchronous = OFF");
-  $db->query("PRAGMA journal_mode = MEMORY");
-  $db->query("PRAGMA busy_timeout = 300000");
+  $db->query('PRAGMA synchronous = OFF');
+  $db->query('PRAGMA journal_mode = MEMORY');
+  $db->query('PRAGMA busy_timeout = 300000');
   
   //Check log table exist or not
   $res_check_table_exist = $db->query("SELECT * FROM sqlite_master WHERE name = 'accesslog' and type='table' ");
@@ -33,12 +33,12 @@ function main() {
     
     clearstatcache();
     $currentSize = filesize(LOG_FILE);
-    if ($size == $currentSize) {
+    if ($size === $currentSize) {
       usleep(100);
       continue;
     }
     
-    $fh = fopen(LOG_FILE, "r");
+    $fh = fopen(LOG_FILE, 'r');
     fseek($fh, $size);
     
     while ($line = fgets($fh)) {
@@ -73,18 +73,18 @@ function main() {
 
 //function for fatal error case
 function fatal_handler() {
-  $errfile = "unknown file";
-  $errstr  = "shutdown";
+  $errfile = 'unknown file';
+  $errstr  = 'shutdown';
   $errno   = E_CORE_ERROR;
   $errline = 0;
   
   $error = error_get_last();
   
-  if ($error !== NULL) {
-    $errno   = $error["type"];
-    $errfile = $error["file"];
-    $errline = $error["line"];
-    $errstr  = $error["message"];
+  if (!is_null($error)) {
+    $errno   = $error['type'];
+    $errfile = $error['file'];
+    $errline = $error['line'];
+    $errstr  = $error['message'];
     
     main();
   }

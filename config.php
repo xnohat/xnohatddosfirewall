@@ -16,7 +16,7 @@ $exclude_ips = array(
   SERVER_IP,
   YOUR_IP,
   
-  // Add more here...
+  // Add more IP address here...
 );
 
 ?>

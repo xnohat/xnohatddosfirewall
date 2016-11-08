@@ -6,7 +6,7 @@ main();
 
 function main() {
   
-  register_shutdown_function("fatal_handler");
+  register_shutdown_function('fatal_handler');
   
   echo "\n\t---------------------------------\n
     \tXNOHAT DDoS FIREWALL\n
@@ -21,7 +21,7 @@ function main() {
   //exec("iptables-save | grep -v -- '-j BLOCKEDIP' | iptables-restore"); // delete all rules related to chain
   //exec('iptables -X BLOCKEDIP'); //delete chain
   exec('iptables -N BLOCKEDIP'); //create chain
-  exec("iptables -A BLOCKEDIP -j LOG --log-level 4 --log-prefix 'blockedip'"); //LOG any packets go to this BLOCKEDIP chain
+  exec('iptables -A BLOCKEDIP -j LOG --log-level 4 --log-prefix \'blockedip\''); //LOG any packets go to this BLOCKEDIP chain
   exec('iptables -A BLOCKEDIP -j DROP'); //DROP any packets go to this BLOCKEDIP chain
   
   while (true) {
@@ -32,9 +32,9 @@ function main() {
       
       $db = new SQLite3(DB_FILE);
       //$db = new SQLite3(':memory:');
-      $db->query("PRAGMA synchronous = OFF");
-      $db->query("PRAGMA journal_mode = MEMORY");
-      $db->query("PRAGMA busy_timeout = 300000");
+      $db->query('PRAGMA synchronous = OFF');
+      $db->query('PRAGMA journal_mode = MEMORY');
+      $db->query('PRAGMA busy_timeout = 300000');
       
       //$res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog GROUP BY remote_ip ORDER BY request_num DESC'); //load all request in database is VERY SLOW
       $res_count_request = $db->query('SELECT remote_ip, count(remote_ip) AS request_num FROM accesslog WHERE request_time BETWEEN "' . @date("Y-m-d H:i:s", time() - TIME_WINDOW) . '" AND "' . @date("Y-m-d H:i:s", time()) . '" GROUP BY remote_ip ORDER BY request_num DESC');
@@ -44,7 +44,7 @@ function main() {
           
           exec('iptables -A INPUT -s ' . $row['remote_ip'] . ' -j BLOCKEDIP');
           
-          echo 'BLOCKED IP: ' . $row['remote_ip'] . ' (REQ_NUM: ' . $row['request_num'] . "/" . TIME_WINDOW . " seconds)\n";
+          echo 'BLOCKED IP: ' . $row['remote_ip'] . ' (REQ_NUM: ' . $row['request_num'] . '/' . TIME_WINDOW . " seconds)\n";
           file_put_contents('blockedip.log', $row['remote_ip'] . '-' . $row['request_num'] . "\n", FILE_APPEND);
           file_put_contents('manualblockip.sh', 'iptables -A INPUT -s ' . $row['remote_ip'] . ' -j BLOCKEDIP' . "\n", FILE_APPEND);
           
@@ -85,18 +85,18 @@ function removeDuplicateIptablesRules() {
 
 //function for fatal error case
 function fatal_handler() {
-  $errfile = "unknown file";
-  $errstr  = "shutdown";
+  $errfile = 'unknown file';
+  $errstr  = 'shutdown';
   $errno   = E_CORE_ERROR;
   $errline = 0;
   
   $error = error_get_last();
   
-  if ($error !== NULL) {
-    $errno   = $error["type"];
-    $errfile = $error["file"];
-    $errline = $error["line"];
-    $errstr  = $error["message"];
+  if (!is_null($error)) {
+    $errno   = $error['type'];
+    $errfile = $error['file'];
+    $errline = $error['line'];
+    $errstr  = $error['message'];
     
     main();
   }
