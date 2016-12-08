@@ -10,7 +10,7 @@ function main() {
   
   echo "\n\t---------------------------------\n
     \tXNOHAT DDoS FIREWALL\n
-    \tVersion: 1.1\n
+    \tVersion: " . VERSION . "\n
     \txnohat@gmail.com\n
     -----------------------------------\n
     ";

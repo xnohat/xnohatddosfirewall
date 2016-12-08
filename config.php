@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('Access denied.');
 
 /* EDIT HERE */
+define('VERSION', '1.1');
 define('LOG_FILE', '/var/log/nginx/access.log');
 define('DB_FILE', BASEPATH . 'access_log.db');
 
@@ -19,7 +20,7 @@ $exclude_ips = array(
   // Add more IP address here...
 );
 
-/* DO NOT EDIT HERE */
+/* DO NOT EDIT */
 function validate($ip) {
   return filter_var($ip, FILTER_VALIDATE_IP);
 }
