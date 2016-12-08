@@ -1,6 +1,7 @@
 <?php
 define('BASEPATH', __DIR__ . DIRECTORY_SEPARATOR);
 require_once BASEPATH . 'config.php';
+require_once BASEPATH . 'init.php';
 
 main();
 
