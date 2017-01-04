@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('Access denied.');
 
 /* EDIT HERE */
-define('VERSION', '1.1');
+define('VERSION', '1.2');
 define('LOG_FILE', '/var/log/nginx/access.log');
 define('DB_FILE', BASEPATH . 'access_log.db');
 
