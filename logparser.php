@@ -44,12 +44,9 @@ function main() {
     while ($line = fgets($fh)) {
       
       // process the line read.
-      if ($line <> '') {
+      if ( ! empty($line)) {
         //-----Clear wasted character-----
-        $clear_char = array(
-          '[',
-          ']'
-        );
+        $clear_char = array('[', ']');
         $line       = str_replace($clear_char, '', $line); //strip special chars
         
         //-----Parse Log Line-----

@@ -1,6 +1,7 @@
 <?php
 define('BASEPATH', __DIR__ . DIRECTORY_SEPARATOR);
 require_once BASEPATH . 'config.php';
+require_once BASEPATH . 'init.php';
 
 main();
 
@@ -10,7 +11,7 @@ function main() {
   
   echo "\n\t---------------------------------\n
     \tXNOHAT DDoS FIREWALL\n
-    \tVersion: 1.1\n
+    \tVersion: " . VERSION . "\n
     \txnohat@gmail.com\n
     -----------------------------------\n
     ";
